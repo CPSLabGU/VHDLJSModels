@@ -73,6 +73,11 @@ open class FileTester: XCTestCase {
         URL(fileURLWithPath: manager.currentDirectoryPath, isDirectory: true)
     }
 
+    /// The path to the `MachineGeneratorTests` target.
+    public var generatorDirectory: URL {
+        testsDirectory.appendingPathComponent("MachineGeneratorTests", isDirectory: true)
+    }
+
     /// The path to the `Tests` directory.
     public var testsDirectory: URL {
         currentDirectory.appendingPathComponent("Tests", isDirectory: true)
