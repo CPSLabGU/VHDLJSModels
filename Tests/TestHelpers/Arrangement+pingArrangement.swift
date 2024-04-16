@@ -1,4 +1,4 @@
-// ArrangementModel.swift
+// Arrangement+pingArrangement.swift
 // LLFSMGenerate
 // 
 // Created by Morgan McColl.
@@ -53,50 +53,40 @@
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
 
-/// This struct represents an `Arrangement`.
-/// 
-/// An arrangement is the top-level structure of a group of Logic-Labelled Finite-State Machines. The
-/// arrangement defines which variables are sensors/actuators/clocks and which variables are local to the
-/// arrangement. It also contains a list of machines that are executing in the arrangement.
-public struct ArrangementModel: Equatable, Hashable, Codable, Sendable {
+import VHDLMachines
+import VHDLParsing
 
-    /// The clocks used in this arrangement. Clocks exist outside the scope of the arrangement.
-    public var clocks: [ClockModel]
+// swiftlint:disable force_unwrapping
 
-    /// The external variables used in this arrangement. External variables represent external
-    /// actuators/sensors and may affect the environment.
-    public var externalVariables: String
+/// Add ping machines arrangement.
+public extension Arrangement {
 
-    /// The machines executing within the arrangement, and the relavent variable mapping to each machine.
-    public var machines: [MachineReference]
-
-    /// The variables that are local to the arrangement. These variables may be shared amongst many machines
-    /// but cannot affect the outside world.
-    public var globalVariables: String
-
-    /// The mappings between external and global variables.
-    public var globalMappings: [VariableMapping]
-
-    /// Initialise the arrangement from it's stored properties.
-    /// - Parameters:
-    ///   - clocks: The clocks used in this arrangement.
-    ///   - externalVariables: The external variables used in this arrangement.
-    ///   - machines: The machines executing within the arrangement.
-    ///   - globalVariables: The variables accessible to all machines within the arrangement but local to the
-    /// arrangement.
-    @inlinable
-    public init(
-        clocks: [ClockModel],
-        externalVariables: String,
-        machines: [MachineReference],
-        globalVariables: String,
-        globalMappings: [VariableMapping] = []
-    ) {
-        self.clocks = clocks
-        self.externalVariables = externalVariables
-        self.machines = machines
-        self.globalVariables = globalVariables
-        self.globalMappings = globalMappings
-    }
+    /// An arrangement containing the `PingMachine`.
+    static let pingArrangement = Arrangement(
+        mappings: [
+            MachineInstance(name: .pingMachine, type: .pingMachine): MachineMapping(
+                machine: .pingMachine,
+                with: [
+                    VHDLMachines.VariableMapping(source: .clk, destination: .clk),
+                    VHDLMachines.VariableMapping(source: .ping, destination: .ping),
+                    VHDLMachines.VariableMapping(source: .pong, destination: .pong)
+                ]
+            )!
+        ],
+        externalSignals: [
+            PortSignal(type: .stdLogic, name: .externalPing, mode: .output),
+            PortSignal(type: .stdLogic, name: .externalPong, mode: .output)
+        ],
+        signals: [
+            LocalSignal(type: .stdLogic, name: .ping), LocalSignal(type: .stdLogic, name: .pong)
+        ],
+        clocks: [Clock(name: .clk, frequency: 125, unit: .MHz)],
+        globalMappings: [
+            VHDLMachines.VariableMapping(source: .externalPing, destination: .ping),
+            VHDLMachines.VariableMapping(source: .externalPong, destination: .pong)
+        ]
+    )!
 
 }
+
+// swiftlint:enable force_unwrapping

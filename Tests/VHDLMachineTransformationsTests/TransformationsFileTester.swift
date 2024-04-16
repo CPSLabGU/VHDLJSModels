@@ -1,4 +1,4 @@
-// ArrangementModel.swift
+// TransformationsFileTester.swift
 // LLFSMGenerate
 // 
 // Created by Morgan McColl.
@@ -53,50 +53,55 @@
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
 
-/// This struct represents an `Arrangement`.
-/// 
-/// An arrangement is the top-level structure of a group of Logic-Labelled Finite-State Machines. The
-/// arrangement defines which variables are sensors/actuators/clocks and which variables are local to the
-/// arrangement. It also contains a list of machines that are executing in the arrangement.
-public struct ArrangementModel: Equatable, Hashable, Codable, Sendable {
+import Foundation
+import JavascriptModel
+import TestHelpers
 
-    /// The clocks used in this arrangement. Clocks exist outside the scope of the arrangement.
-    public var clocks: [ClockModel]
+/// Helper class for testing in the `VHDLMachinesTransformations` target.
+class TransformationsFileTester: FileTester {
 
-    /// The external variables used in this arrangement. External variables represent external
-    /// actuators/sensors and may affect the environment.
-    public var externalVariables: String
+    /// The path to the `machines` folder within the `VHDLMachinesTransformationsTests` target.
+    var machinesDirectory: URL {
+        transformationsDirectory.appendingPathComponent("machines", isDirectory: true)
+    }
 
-    /// The machines executing within the arrangement, and the relavent variable mapping to each machine.
-    public var machines: [MachineReference]
+    /// The directory to the `PingMachine`.
+    var pingMachineDirectory: URL {
+        machinesDirectory.appendingPathComponent("PingMachine.machine", isDirectory: true)
+    }
 
-    /// The variables that are local to the arrangement. These variables may be shared amongst many machines
-    /// but cannot affect the outside world.
-    public var globalVariables: String
+    /// Create the machines directory before each test.
+    override func setUp() {
+        super.setUp()
+        if !manager.fileExists(atPath: machinesDirectory.path) {
+            try? manager.createDirectory(
+                at: machinesDirectory, withIntermediateDirectories: true, attributes: nil
+            )
+            _ = manager.createFile(
+                atPath: machinesDirectory.appendingPathComponent(".gitignore", isDirectory: false).path,
+                contents: "*".data(using: .utf8)
+            )
+        }
+        try? manager.createDirectory(at: pingMachineDirectory, withIntermediateDirectories: true)
+        let model = MachineModel.pingMachine
+        let modelDir = pingMachineDirectory.appendingPathComponent("model.json", isDirectory: false)
+        guard let data = try? JSONEncoder().encode(model) else {
+            return
+        }
+        try? data.write(to: modelDir)
+    }
 
-    /// The mappings between external and global variables.
-    public var globalMappings: [VariableMapping]
-
-    /// Initialise the arrangement from it's stored properties.
-    /// - Parameters:
-    ///   - clocks: The clocks used in this arrangement.
-    ///   - externalVariables: The external variables used in this arrangement.
-    ///   - machines: The machines executing within the arrangement.
-    ///   - globalVariables: The variables accessible to all machines within the arrangement but local to the
-    /// arrangement.
-    @inlinable
-    public init(
-        clocks: [ClockModel],
-        externalVariables: String,
-        machines: [MachineReference],
-        globalVariables: String,
-        globalMappings: [VariableMapping] = []
-    ) {
-        self.clocks = clocks
-        self.externalVariables = externalVariables
-        self.machines = machines
-        self.globalVariables = globalVariables
-        self.globalMappings = globalMappings
+    /// Remove the machines directory before each test.
+    override func tearDown() {
+        super.tearDown()
+        try? manager.removeItem(at: machinesDirectory)
+        try? manager.createDirectory(
+            at: machinesDirectory, withIntermediateDirectories: true, attributes: nil
+        )
+        _ = manager.createFile(
+            atPath: machinesDirectory.appendingPathComponent(".gitignore", isDirectory: false).path,
+            contents: "*".data(using: .utf8)
+        )
     }
 
 }

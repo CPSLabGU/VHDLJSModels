@@ -1,4 +1,4 @@
-// ArrangementModel.swift
+// FileTester.swift
 // LLFSMGenerate
 // 
 // Created by Morgan McColl.
@@ -53,50 +53,39 @@
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
 
-/// This struct represents an `Arrangement`.
-/// 
-/// An arrangement is the top-level structure of a group of Logic-Labelled Finite-State Machines. The
-/// arrangement defines which variables are sensors/actuators/clocks and which variables are local to the
-/// arrangement. It also contains a list of machines that are executing in the arrangement.
-public struct ArrangementModel: Equatable, Hashable, Codable, Sendable {
+import Foundation
+import XCTest
 
-    /// The clocks used in this arrangement. Clocks exist outside the scope of the arrangement.
-    public var clocks: [ClockModel]
+/// Add helper methods for testing files.
+open class FileTester: XCTestCase {
 
-    /// The external variables used in this arrangement. External variables represent external
-    /// actuators/sensors and may affect the environment.
-    public var externalVariables: String
+    /// A `JSON` encoder.
+    public let encoder = JSONEncoder()
 
-    /// The machines executing within the arrangement, and the relavent variable mapping to each machine.
-    public var machines: [MachineReference]
+    /// A `JSON` decoder.
+    public let decoder = JSONDecoder()
 
-    /// The variables that are local to the arrangement. These variables may be shared amongst many machines
-    /// but cannot affect the outside world.
-    public var globalVariables: String
+    /// A file manager.
+    public let manager = FileManager.default
 
-    /// The mappings between external and global variables.
-    public var globalMappings: [VariableMapping]
+    /// The path to the root directory of the package.
+    public var currentDirectory: URL {
+        URL(fileURLWithPath: manager.currentDirectoryPath, isDirectory: true)
+    }
 
-    /// Initialise the arrangement from it's stored properties.
-    /// - Parameters:
-    ///   - clocks: The clocks used in this arrangement.
-    ///   - externalVariables: The external variables used in this arrangement.
-    ///   - machines: The machines executing within the arrangement.
-    ///   - globalVariables: The variables accessible to all machines within the arrangement but local to the
-    /// arrangement.
-    @inlinable
-    public init(
-        clocks: [ClockModel],
-        externalVariables: String,
-        machines: [MachineReference],
-        globalVariables: String,
-        globalMappings: [VariableMapping] = []
-    ) {
-        self.clocks = clocks
-        self.externalVariables = externalVariables
-        self.machines = machines
-        self.globalVariables = globalVariables
-        self.globalMappings = globalMappings
+    /// The path to the `MachineGeneratorTests` target.
+    public var generatorDirectory: URL {
+        testsDirectory.appendingPathComponent("MachineGeneratorTests", isDirectory: true)
+    }
+
+    /// The path to the `Tests` directory.
+    public var testsDirectory: URL {
+        currentDirectory.appendingPathComponent("Tests", isDirectory: true)
+    }
+
+    /// The path to the `VHDLMachinesTransformationsTests` target.
+    public var transformationsDirectory: URL {
+        testsDirectory.appendingPathComponent("VHDLMachineTransformationsTests", isDirectory: true)
     }
 
 }

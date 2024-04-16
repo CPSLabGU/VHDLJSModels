@@ -1,4 +1,4 @@
-// ArrangementModel.swift
+// ArrangementModel+pingArrangement.swift
 // LLFSMGenerate
 // 
 // Created by Morgan McColl.
@@ -53,50 +53,39 @@
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
 
-/// This struct represents an `Arrangement`.
-/// 
-/// An arrangement is the top-level structure of a group of Logic-Labelled Finite-State Machines. The
-/// arrangement defines which variables are sensors/actuators/clocks and which variables are local to the
-/// arrangement. It also contains a list of machines that are executing in the arrangement.
-public struct ArrangementModel: Equatable, Hashable, Codable, Sendable {
+import Foundation
+import JavascriptModel
 
-    /// The clocks used in this arrangement. Clocks exist outside the scope of the arrangement.
-    public var clocks: [ClockModel]
+/// Add creation of ping arrangement.
+public extension ArrangementModel {
 
-    /// The external variables used in this arrangement. External variables represent external
-    /// actuators/sensors and may affect the environment.
-    public var externalVariables: String
-
-    /// The machines executing within the arrangement, and the relavent variable mapping to each machine.
-    public var machines: [MachineReference]
-
-    /// The variables that are local to the arrangement. These variables may be shared amongst many machines
-    /// but cannot affect the outside world.
-    public var globalVariables: String
-
-    /// The mappings between external and global variables.
-    public var globalMappings: [VariableMapping]
-
-    /// Initialise the arrangement from it's stored properties.
-    /// - Parameters:
-    ///   - clocks: The clocks used in this arrangement.
-    ///   - externalVariables: The external variables used in this arrangement.
-    ///   - machines: The machines executing within the arrangement.
-    ///   - globalVariables: The variables accessible to all machines within the arrangement but local to the
-    /// arrangement.
-    @inlinable
-    public init(
-        clocks: [ClockModel],
-        externalVariables: String,
-        machines: [MachineReference],
-        globalVariables: String,
-        globalMappings: [VariableMapping] = []
-    ) {
-        self.clocks = clocks
-        self.externalVariables = externalVariables
-        self.machines = machines
-        self.globalVariables = globalVariables
-        self.globalMappings = globalMappings
+    /// Create a ping arrangement that contains a ping machine located at `path`.
+    /// - Parameter path: The location of the ping machine.
+    /// - Returns: The arrangement model.
+    static func pingArrangement(path: URL) -> ArrangementModel {
+        ArrangementModel(
+            clocks: [ClockModel(name: "clk", frequency: "125 MHz")],
+            externalVariables: "externalPing: out std_logic; externalPong: out std_logic;",
+            machines: [
+                MachineReference(
+                    name: "PingMachine",
+                    path: path.path,
+                    mappings: [
+                        JavascriptModel.VariableMapping(source: "clk", destination: "clk"),
+                        JavascriptModel.VariableMapping(source: "ping", destination: "ping"),
+                        JavascriptModel.VariableMapping(source: "pong", destination: "pong")
+                    ]
+                )
+            ],
+            globalVariables: """
+            signal ping: std_logic;
+            signal pong: std_logic;
+            """,
+            globalMappings: [
+                VariableMapping(source: "externalPing", destination: "ping"),
+                VariableMapping(source: "externalPong", destination: "pong")
+            ]
+        )
     }
 
 }

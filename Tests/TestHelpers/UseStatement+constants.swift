@@ -1,4 +1,4 @@
-// ArrangementModel.swift
+// UseStatement+constants.swift
 // LLFSMGenerate
 // 
 // Created by Morgan McColl.
@@ -53,50 +53,25 @@
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
 
-/// This struct represents an `Arrangement`.
-/// 
-/// An arrangement is the top-level structure of a group of Logic-Labelled Finite-State Machines. The
-/// arrangement defines which variables are sensors/actuators/clocks and which variables are local to the
-/// arrangement. It also contains a list of machines that are executing in the arrangement.
-public struct ArrangementModel: Equatable, Hashable, Codable, Sendable {
+import VHDLParsing
 
-    /// The clocks used in this arrangement. Clocks exist outside the scope of the arrangement.
-    public var clocks: [ClockModel]
+// swiftlint:disable force_unwrapping
+// swiftlint:disable missing_docs
 
-    /// The external variables used in this arrangement. External variables represent external
-    /// actuators/sensors and may affect the environment.
-    public var externalVariables: String
+/// Add test constants.
+public extension UseStatement {
 
-    /// The machines executing within the arrangement, and the relavent variable mapping to each machine.
-    public var machines: [MachineReference]
+    /// An import to the `IEEE.std_logic_1164.all` module
+    static let stdLogic1164 = UseStatement(
+        nonEmptyComponents: [.module(name: .ieee), .module(name: .stdLogic1164), .all]
+    )!
 
-    /// The variables that are local to the arrangement. These variables may be shared amongst many machines
-    /// but cannot affect the outside world.
-    public var globalVariables: String
-
-    /// The mappings between external and global variables.
-    public var globalMappings: [VariableMapping]
-
-    /// Initialise the arrangement from it's stored properties.
-    /// - Parameters:
-    ///   - clocks: The clocks used in this arrangement.
-    ///   - externalVariables: The external variables used in this arrangement.
-    ///   - machines: The machines executing within the arrangement.
-    ///   - globalVariables: The variables accessible to all machines within the arrangement but local to the
-    /// arrangement.
-    @inlinable
-    public init(
-        clocks: [ClockModel],
-        externalVariables: String,
-        machines: [MachineReference],
-        globalVariables: String,
-        globalMappings: [VariableMapping] = []
-    ) {
-        self.clocks = clocks
-        self.externalVariables = externalVariables
-        self.machines = machines
-        self.globalVariables = globalVariables
-        self.globalMappings = globalMappings
-    }
+    /// An import to the `IEEE.math_real.all` module.
+    static let mathReal = UseStatement(
+        nonEmptyComponents: [.module(name: .ieee), .module(name: .mathReal), .all]
+    )!
 
 }
+
+// swiftlint:enable missing_docs
+// swiftlint:enable force_unwrapping

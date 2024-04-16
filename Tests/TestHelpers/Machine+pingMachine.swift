@@ -1,4 +1,4 @@
-// ArrangementModel.swift
+// Machine+pingMachine.swift
 // LLFSMGenerate
 // 
 // Created by Morgan McColl.
@@ -53,50 +53,69 @@
 // or write to the Free Software Foundation, Inc., 51 Franklin Street,
 // Fifth Floor, Boston, MA  02110-1301, USA.
 
-/// This struct represents an `Arrangement`.
-/// 
-/// An arrangement is the top-level structure of a group of Logic-Labelled Finite-State Machines. The
-/// arrangement defines which variables are sensors/actuators/clocks and which variables are local to the
-/// arrangement. It also contains a list of machines that are executing in the arrangement.
-public struct ArrangementModel: Equatable, Hashable, Codable, Sendable {
+import VHDLMachines
+import VHDLParsing
 
-    /// The clocks used in this arrangement. Clocks exist outside the scope of the arrangement.
-    public var clocks: [ClockModel]
+/// Add test data.
+public extension Machine {
 
-    /// The external variables used in this arrangement. External variables represent external
-    /// actuators/sensors and may affect the environment.
-    public var externalVariables: String
-
-    /// The machines executing within the arrangement, and the relavent variable mapping to each machine.
-    public var machines: [MachineReference]
-
-    /// The variables that are local to the arrangement. These variables may be shared amongst many machines
-    /// but cannot affect the outside world.
-    public var globalVariables: String
-
-    /// The mappings between external and global variables.
-    public var globalMappings: [VariableMapping]
-
-    /// Initialise the arrangement from it's stored properties.
-    /// - Parameters:
-    ///   - clocks: The clocks used in this arrangement.
-    ///   - externalVariables: The external variables used in this arrangement.
-    ///   - machines: The machines executing within the arrangement.
-    ///   - globalVariables: The variables accessible to all machines within the arrangement but local to the
-    /// arrangement.
-    @inlinable
-    public init(
-        clocks: [ClockModel],
-        externalVariables: String,
-        machines: [MachineReference],
-        globalVariables: String,
-        globalMappings: [VariableMapping] = []
-    ) {
-        self.clocks = clocks
-        self.externalVariables = externalVariables
-        self.machines = machines
-        self.globalVariables = globalVariables
-        self.globalMappings = globalMappings
-    }
+    /// A `PingMachine`.
+    static let pingMachine = Machine(
+        actions: [.internal, .onEntry, .onExit],
+        includes: [.library(value: .ieee), .include(statement: .stdLogic1164)],
+        externalSignals: [
+            PortSignal(type: .stdLogic, name: .ping, mode: .output),
+            PortSignal(type: .stdLogic, name: .pong, mode: .input)
+        ],
+        clocks: [Clock(name: .clk, frequency: 125, unit: .MHz)],
+        drivingClock: 0,
+        machineSignals: [],
+        isParameterised: false,
+        parameterSignals: [],
+        returnableSignals: [],
+        states: [
+            State(name: .initial, actions: [:], signals: [], externalVariables: []),
+            State(
+                name: .sendPing,
+                actions: [
+                    .onExit: .statement(statement: .assignment(
+                        name: .variable(reference: .variable(name: .ping)),
+                        value: .literal(value: .bit(value: .high))
+                    ))
+                ],
+                signals: [],
+                externalVariables: [.ping]
+            ),
+            State(
+                name: .waitForPong,
+                actions: [
+                    .onEntry: .statement(statement: .assignment(
+                        name: .variable(reference: .variable(name: .ping)),
+                        value: .literal(value: .bit(value: .low))
+                    )),
+                    .internal: .statement(statement: .assignment(
+                        name: .variable(reference: .variable(name: .ping)),
+                        value: .literal(value: .bit(value: .low))
+                    ))
+                ],
+                signals: [],
+                externalVariables: [.ping, .pong]
+            )
+        ],
+        transitions: [
+            Transition(condition: .conditional(condition: .literal(value: true)), source: 0, target: 1),
+            Transition(condition: .conditional(condition: .literal(value: true)), source: 1, target: 2),
+            Transition(
+                condition: .conditional(condition: .comparison(value: .equality(
+                    lhs: .reference(variable: .variable(reference: .variable(name: .pong))),
+                    rhs: .literal(value: .bit(value: .high))
+                ))),
+                source: 2,
+                target: 1
+            )
+        ],
+        initialState: 0,
+        suspendedState: nil
+    )
 
 }
