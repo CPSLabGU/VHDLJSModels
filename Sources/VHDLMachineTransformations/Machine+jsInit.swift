@@ -70,12 +70,14 @@ extension Machine {
     ///   - model: The model representing this machine.
     ///   - path: The path where the machine is located.
     @inlinable
-    public init?(model: MachineModel) {
+    public init(model: MachineModel) throws {
         let actionNames = Set(["OnEntry", "OnExit", "Internal"])
             .union(model.states.flatMap { $0.actions.map(\.name) })
-        let variableNames = actionNames.compactMap(VariableName.init(rawValue:))
-        guard variableNames.count == actionNames.count else {
-            return nil
+        let variableNames = try actionNames.map {
+            guard let name = VariableName(rawValue: $0) else {
+                throw TransformationError.parseError(message: "Invalid action name: \($0)")
+            }
+            return name
         }
         let actionVariableNames = Set(variableNames).sorted()
         let getStatements: (String) -> [String] = {
@@ -85,35 +87,34 @@ extension Machine {
                 .map { $0 + ";" }
         }
         let includes = getStatements(model.includes)
-        let parsedIncludes = includes.compactMap { Include(rawValue: $0) }
-        guard parsedIncludes.count == includes.count else {
-            return nil
+        let parsedIncludes = try includes.map {
+            guard let include = Include(rawValue: $0) else {
+                throw TransformationError.parseError(message: "Invalid include: \($0)")
+            }
+            return include
         }
         let machineSignalsRaw = getStatements(model.machineVariables)
-        let machineSignals = machineSignalsRaw.compactMap { LocalSignal(rawValue: $0) }
-        guard machineSignalsRaw.count == machineSignals.count else {
-            return nil
+        let machineSignals = try machineSignalsRaw.map {
+            guard let signal = LocalSignal(rawValue: $0) else {
+                throw TransformationError.parseError(message: "Invalid machine variable: \($0)")
+            }
+            return signal
         }
         let externalsRaw = getStatements(model.externalVariables)
-        let externalSignals = externalsRaw.compactMap(PortSignal.init(rawValue:))
-        guard externalsRaw.count == externalSignals.count else {
-            return nil
+        let externalSignals = try externalsRaw.map{
+            guard let signal = PortSignal.init(rawValue: $0) else {
+                throw TransformationError.parseError(message: "Invalid external variable: \($0)")
+            }
+            return signal
         }
-        let clocks = model.clocks.compactMap(Clock.init(model:))
-        guard clocks.count == model.clocks.count, !clocks.isEmpty else {
-            return nil
-        }
-        let states = model.states.compactMap { State(model: $0) }
-        guard states.count == model.states.count else {
-            return nil
-        }
-        let transitions = model.transitions.compactMap { Transition(model: $0, states: states) }
+        let clocks = try model.clocks.map(Clock.init(model:))
+        let states = try model.states.map { try State(model: $0) }
+        let transitions = try model.transitions.map { try Transition(model: $0, states: states) }
         guard
-            transitions.count == model.transitions.count,
             let initialName = VariableName(rawValue: model.initialState),
             let initialState = states.firstIndex(where: { $0.name == initialName })
         else {
-            return nil
+            throw TransformationError.parseError(message: "Invalid initial state: \(model.initialState)")
         }
         var suspendedIndex: Int?
         if let suspendedState = model.suspendedState {
@@ -121,7 +122,7 @@ extension Machine {
                 let suspendedName = VariableName(rawValue: suspendedState),
                 let index = states.firstIndex(where: { $0.name == suspendedName })
             else {
-                return nil
+                throw TransformationError.parseError(message: "Invalid suspended state: \(suspendedState)")
             }
             suspendedIndex = index
         }
@@ -132,7 +133,14 @@ extension Machine {
         let allNames: [VariableName] = stateNames + signalNames
         // Check for duplicate names.
         guard Set(allNames).count == allNames.count else {
-            return nil
+            let duplicates = allNames.reduce(into: [VariableName: Int]()) { counts, name in
+                counts[name, default: 0] += 1
+            }
+            .filter { $0.value > 1 }
+            .map(\.key)
+            throw TransformationError.modelError(
+                message: "Duplicate names found: \(duplicates.map(\.rawValue).joined(separator: ", "))"
+            )
         }
         self.init(
             actions: actionVariableNames,

@@ -65,19 +65,22 @@ extension Clock {
     /// Create a clock from its javascript model.
     /// - Parameter model: The javascript model representing this clock.
     @inlinable
-    public init?(model: ClockModel) {
+    public init(model: ClockModel) throws {
         guard let name = VariableName(rawValue: model.name) else {
-            return nil
+            throw TransformationError.parseError(
+                message: "Clock has invalid name \(model.name). " +
+                    "Please make sure this name represents a valid VHDL variable name."
+            )
         }
         let frequency = model.frequency.trimmingCharacters(in: .whitespacesAndNewlines)
         guard frequency.count >= 3 else {
-            return nil
+            throw TransformationError.clockFrequencyError(frequency: model.frequency)
         }
         let separator = frequency[frequency.index(
             frequency.startIndex, offsetBy: frequency.count - 3
         )]
         guard let scalar = separator.unicodeScalars.first else {
-            return nil
+            throw TransformationError.clockFrequencyError(frequency: model.frequency)
         }
         let unitLength: Int
         if UInt(String(separator)) != nil || CharacterSet.whitespacesAndNewlines.contains(scalar) {
@@ -86,14 +89,27 @@ extension Clock {
             unitLength = 3
         }
         guard let unit = Clock.FrequencyUnit(rawValue: String(frequency.suffix(unitLength))) else {
-            return nil
+            throw TransformationError.clockFrequencyError(frequency: model.frequency)
         }
         let numberRaw = String(frequency.prefix(frequency.count - unitLength))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         guard let number = UInt(numberRaw) else {
-            return nil
+            throw TransformationError.clockFrequencyError(frequency: model.frequency)
         }
         self.init(name: name, frequency: number, unit: unit)
     }
 
+}
+
+/// Add clock errors.
+extension TransformationError {
+    /// An error when parsing a clock frequency.
+    @inlinable
+    static func clockFrequencyError(frequency: String) -> TransformationError {
+        TransformationError.parseError(
+            message: "Clock frequency \(frequency) is invalid. " +
+                "Please make sure the frequency is in the format <number> <unit> where unit is one of" +
+                " Hz, kHz, MHz or GHz."
+        )
+    }
 }

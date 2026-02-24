@@ -72,47 +72,47 @@ final class ClockTests: XCTestCase {
     }
 
     /// Test the init parses the model correctly.
-    func testModelIsParsedCorrectly() {
+    func testModelIsParsedCorrectly() throws {
         // swiftlint:disable:next force_unwrapping
         let clk = VariableName(rawValue: "clk")!
         let expected = Clock(name: clk, frequency: 100, unit: .MHz)
-        XCTAssertEqual(expected, Clock(model: model))
+        XCTAssertEqual(expected, try Clock(model: model))
         model.frequency = "100MHz"
-        XCTAssertEqual(expected, Clock(model: model))
+        XCTAssertEqual(expected, try Clock(model: model))
         model.frequency = "100Hz"
         let expected2 = Clock(name: clk, frequency: 100, unit: .Hz)
-        XCTAssertEqual(expected2, Clock(model: model))
+        XCTAssertEqual(expected2, try Clock(model: model))
         model.frequency = "100 Hz"
-        XCTAssertEqual(expected2, Clock(model: model))
+        XCTAssertEqual(expected2, try Clock(model: model))
         model.frequency = "1Hz"
         let expected3 = Clock(name: clk, frequency: 1, unit: .Hz)
-        XCTAssertEqual(expected3, Clock(model: model))
+        XCTAssertEqual(expected3, try Clock(model: model))
         model.frequency = "1 Hz"
-        XCTAssertEqual(expected3, Clock(model: model))
+        XCTAssertEqual(expected3, try Clock(model: model))
     }
 
     /// Test init fails for invalid name in model.
     func testInvalidName() {
         model.name = "c l k"
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
         model.name = ""
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
         model.name = "   "
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
     }
 
     /// Test init fails for invalid frequency.
     func testInvalidFrequency() {
         model.frequency = ""
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
         model.frequency = "10"
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
         model.frequency = "Hz"
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
         model.frequency = "THz"
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
         model.frequency = "1   1"
-        XCTAssertNil(Clock(model: model))
+        XCTAssertThrowsError(try Clock(model: model))
     }
 
 }

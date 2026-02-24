@@ -66,15 +66,36 @@ extension Transition {
     ///   - model: The javascript model of this transition.
     ///   - states: The states that exist in the machine this transition belongs too.
     @inlinable
-    public init?(model: TransitionModel, states: [State]) {
+    public init(model: TransitionModel, states: [State]) throws {
+        guard let condition = TransitionCondition(rawValue: model.condition) else {
+            throw TransformationError.parseError(
+                message: """
+                Invalid condition on transition (source, target, condition):
+                (\(model.source), \(model.target), \(model.condition))
+                """
+            )
+        }
         guard
-            let condition = TransitionCondition(rawValue: model.condition),
             let sourceName = VariableName(rawValue: model.source),
+            let source = states.firstIndex(where: { $0.name == sourceName })
+        else {
+            throw TransformationError.parseError(
+                message: """
+                Invalid source on transition (source, target, condition):
+                (\(model.source), \(model.target), \(model.condition))
+                """
+            )
+        }
+        guard
             let targetName = VariableName(rawValue: model.target),
-            let source = states.firstIndex(where: { $0.name == sourceName }),
             let target = states.firstIndex(where: { $0.name == targetName })
         else {
-            return nil
+            throw TransformationError.parseError(
+                message: """
+                Invalid target on transition (source, target, condition):
+                (\(model.source), \(model.target), \(model.condition))
+                """
+            )
         }
         self.init(
             condition: condition,

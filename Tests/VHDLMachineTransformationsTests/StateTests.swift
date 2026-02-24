@@ -164,47 +164,47 @@ final class StateTests: XCTestCase {
     // swiftlint:enable force_unwrapping
 
     /// Test the state model is correctly converted into a state.
-    func testStateModelConversion() {
-        let state = State(model: model)
+    func testStateModelConversion() throws {
+        let state = try State(model: model)
         XCTAssertEqual(state, expected)
     }
 
     /// Test for invalid name in model conversion.
     func testInvalidNameInModelConversion() {
         model.name = "state 1"
-        XCTAssertNil(State(model: model))
+        XCTAssertThrowsError(try State(model: model))
     }
 
     /// Test the initialiser returns nil for invalid actions.
     func testInvalidActions() {
         var model2 = model
         model.actions[0].code = "This is invalid"
-        XCTAssertNil(State(model: model))
+        XCTAssertThrowsError(try State(model: model))
         model2.actions[0].name = "Invalid name"
-        XCTAssertNil(State(model: model2))
+        XCTAssertThrowsError(try State(model: model2))
     }
 
     /// Test the initialiser returns nil for invalid variables.
     func testInvalidVariables() {
         model.variables += "\nThis is invalid;"
-        XCTAssertNil(State(model: model))
+        XCTAssertThrowsError(try State(model: model))
     }
 
     /// Test invalid external variables return nil.
     func testInvalidExternalVariables() {
         model.externalVariables += "\nThis is invalid"
-        XCTAssertNil(State(model: model))
+        XCTAssertThrowsError(try State(model: model))
     }
 
     /// Check init removes empty actions.
-    func testInvalidAction() {
+    func testInvalidAction() throws {
         // swiftlint:disable:next force_unwrapping
         let internalName = VariableName(rawValue: "Internal")!
         model.actions = model.actions.dropLast() + [
             ActionModel(name: "Internal", code: "")
         ]
         expected.actions[internalName] = nil
-        let state = State(model: model)
+        let state = try State(model: model)
         XCTAssertEqual(state, expected)
     }
 

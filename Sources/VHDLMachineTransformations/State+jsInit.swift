@@ -66,41 +66,52 @@ extension State {
     /// - Parameter model: The javascript model that represents this state.
     /// - SeeAlso: ``StateModel``.
     @inlinable
-    public init?(model: StateModel) {
+    public init(model: StateModel) throws {
         guard let name = VariableName(rawValue: model.name) else {
-            return nil
+            throw TransformationError.parseError(message: "Invalid state name: \(model.name)")
         }
         let validActions = model.actions.filter {
             !$0.code.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
-        let actionNames = validActions.map(\.name)
-        let actionNamesParsed = actionNames.compactMap(VariableName.init(rawValue:))
-        guard actionNames.count == actionNamesParsed.count else {
-            return nil
+        let actionTuples = try validActions.map {
+            guard let name = VariableName(rawValue: $0.name) else {
+                throw TransformationError.parseError(
+                    message: "Invalid action name \($0.name) in state \(model.name)"
+                )
+            }
+            guard let code = SynchronousBlock(rawValue: $0.code) else {
+                throw TransformationError.parseError(
+                    message: "Could not parse \($0.name) action code in state \(model.name)"
+                )
+            }
+            return (name, code)
         }
-        let actionCode = validActions.map(\.code)
-        let actionCodeParsed = actionCode.compactMap(SynchronousBlock.init(rawValue:))
-        guard
-            actionCode.count == actionCodeParsed.count,
-            actionNamesParsed.count == actionCodeParsed.count
-        else {
-            return nil
+        guard Set(actionTuples.map(\.0)).count == actionTuples.count else {
+            throw TransformationError.modelError(message: "Duplicate actions found in \(model.name) state.")
         }
-        let actions = Dictionary(uniqueKeysWithValues: zip(actionNamesParsed, actionCodeParsed))
+        let actions = Dictionary(uniqueKeysWithValues: actionTuples)
         let signalsRaw = model.variables.components(separatedBy: ";")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
             .map { $0 + ";" }
-        let signalsParsed = signalsRaw.compactMap(LocalSignal.init(rawValue:))
-        guard signalsParsed.count == signalsRaw.count else {
-            return nil
+        let signalsParsed = try signalsRaw.map {
+            guard let signal = LocalSignal(rawValue: $0) else {
+                throw TransformationError.parseError(
+                    message: "Cannot parse state variable declaration: \($0)"
+                )
+            }
+            return signal
         }
         let externalsRaw = model.externalVariables.components(separatedBy: .newlines)
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
-        let externalVariables = externalsRaw.compactMap(VariableName.init(rawValue:))
-        guard externalsRaw.count == externalVariables.count else {
-            return nil
+        let externalVariables = try externalsRaw.map {
+            guard let name = VariableName(rawValue: $0) else {
+                throw TransformationError.parseError(
+                    message: "Invalid external variable name \($0) in the \(model.name) state's access list."
+                )
+            }
+            return name
         }
         self.init(
             name: name,

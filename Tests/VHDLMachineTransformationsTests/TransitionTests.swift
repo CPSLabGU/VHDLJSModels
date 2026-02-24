@@ -87,8 +87,8 @@ final class TransitionTests: XCTestCase {
     // swiftlint:enable force_unwrapping
 
     /// Test the conversion from a model to a transition.
-    func testModelConversion() {
-        let transition = Transition(model: model, states: states)
+    func testModelConversion() throws {
+        let transition = try Transition(model: model, states: states)
         let expected = Transition(
             condition: .conditional(condition: .literal(value: true)),
             source: 0,
@@ -98,16 +98,16 @@ final class TransitionTests: XCTestCase {
     }
 
     /// Test invalid model.
-    func testInvalidModel() {
+    func testInvalidModel() throws {
         var model = model
         var model2 = model
         var model3 = model
         model.condition = "1 + 2"
-        XCTAssertNil(Transition(model: model, states: states))
+        XCTAssertThrowsError(try Transition(model: model, states: states))
         model2.source = "state3"
-        XCTAssertNil(Transition(model: model2, states: states))
+        XCTAssertThrowsError(try Transition(model: model2, states: states))
         model3.target = "state 2"
-        XCTAssertNil(Transition(model: model3, states: states))
+        XCTAssertThrowsError(try Transition(model: model3, states: states))
     }
 
 }
