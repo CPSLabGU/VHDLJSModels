@@ -261,9 +261,9 @@ final class MachineTests: XCTestCase {
     /// Test for incorrect actions.
     func testInvalidActions() throws {
         model.states[0].actions = [ActionModel(name: "1 2 3", code: "null;")]
-        XCTAssertNil(try Machine(model: model))
+        XCTAssertThrowsError(try Machine(model: model))
         model.states[0].actions = [ActionModel(name: "OnExit", code: "invalid code")]
-        XCTAssertNil(try Machine(model: model))
+        XCTAssertThrowsError(try Machine(model: model))
     }
 
     /// Test for invalid includes.
