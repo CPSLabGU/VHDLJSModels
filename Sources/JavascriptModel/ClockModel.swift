@@ -54,7 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-/// A model of a clock signal. This struct represents the user-entered input for a clock signal definition.
+/// A model of a clock signal.
+///
+/// This struct represents the user-entered input for a clock signal definition.
 public struct ClockModel: Equatable, Hashable, Codable, Sendable {
 
     /// The name of the clock.

@@ -61,40 +61,58 @@ import VHDLParsing
 /// Add common test variables.
 extension VariableName {
 
+    /// The `arrangement1` variable name.
     public static let arrangement1 = VariableName(rawValue: "Arrangement1")!
 
+    /// The `beginExecution` variable name.
     public static let beginExecution = VariableName(rawValue: "beginExecution")!
 
+    /// The `clk` variable name.
     public static let clk = VariableName(rawValue: "clk")!
 
+    /// The `externalPing` variable name.
     public static let externalPing = VariableName(rawValue: "externalPing")!
 
+    /// The `externalPong` variable name.
     public static let externalPong = VariableName(rawValue: "externalPong")!
 
+    /// The `ieee` variable name.
     public static let ieee = VariableName(rawValue: "IEEE")!
 
+    /// The `initial` variable name.
     public static let initial = VariableName(rawValue: "Initial")!
 
+    /// The `internal` variable name.
     public static let `internal` = VariableName(rawValue: "Internal")!
 
+    /// The `mathReal` variable name.
     public static let mathReal = VariableName(rawValue: "math_real")!
 
+    /// The `onEntry` variable name.
     public static let onEntry = VariableName(rawValue: "OnEntry")!
 
+    /// The `onExit` variable name.
     public static let onExit = VariableName(rawValue: "OnExit")!
 
+    /// The `ping` variable name.
     public static let ping = VariableName(rawValue: "ping")!
 
+    /// The `pingMachine` variable name.
     public static let pingMachine = VariableName(rawValue: "PingMachine")!
 
+    /// The `pingMachineInst` variable name.
     public static let pingMachineInst = VariableName(rawValue: "PingMachine_inst")!
 
+    /// The `pong` variable name.
     public static let pong = VariableName(rawValue: "pong")!
 
+    /// The `sendPing` variable name.
     public static let sendPing = VariableName(rawValue: "SendPing")!
 
+    /// The `stdLogic1164` variable name.
     public static let stdLogic1164 = VariableName(rawValue: "std_logic_1164")!
 
+    /// The `waitForPong` variable name.
     public static let waitForPong = VariableName(rawValue: "WaitForPong")!
 
 }

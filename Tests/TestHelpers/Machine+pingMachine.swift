@@ -59,6 +59,8 @@ import VHDLParsing
 /// Add test data.
 extension Machine {
 
+    // swift-format-ignore: DontRepeatTypeInStaticProperties
+
     /// A `PingMachine`.
     public static let pingMachine = Machine(
         actions: [.internal, .onEntry, .onExit],

@@ -54,7 +54,9 @@
 // Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-/// An abstract model for a transition between states in an LLFSM. A transition represents a pathway between
+/// An abstract model for a transition between states in an LLFSM.
+///
+/// A transition represents a pathway between
 /// two states that can be enacted when the condition is met. The transition also has a layout that describes
 /// the shape of the arrow representing the transition. The transitions priority is not contained within this
 /// struct, instead it is infered by it's placement within the parent model.

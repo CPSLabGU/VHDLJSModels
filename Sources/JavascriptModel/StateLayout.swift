@@ -60,7 +60,9 @@ public struct StateLayout: Equatable, Hashable, Codable, Sendable {
     /// The position of the top-left corner in cartesian coordinates.
     public var position: Point2D
 
-    /// The width and height in cartesian coordinates. The x-coordinate represents the width, while the
+    /// The width and height in cartesian coordinates.
+    ///
+    /// The x-coordinate represents the width, while the
     /// y-coordinate represents the height. The y-coordinate is represented in an inverted plane where the
     /// positive y-direction is downwards.
     public var dimensions: Point2D

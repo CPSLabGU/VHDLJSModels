@@ -75,12 +75,14 @@ public struct MachineModel: Equatable, Hashable, Codable, Sendable {
     /// The name of the initial state.
     public var initialState: String
 
-    /// The name of the suspended state. This property may be `nil` indicating that the machine has no
-    /// suspended state.
+    /// The name of the suspended state.
+    ///
+    /// This property may be `nil` indicating that the machine has no suspended state.
     public var suspendedState: String?
 
-    /// The clocks used in this machine. The first clock in the array represents the clock driving the
-    /// machines execution.
+    /// The clocks used in this machine.
+    ///
+    /// The first clock in the array represents the clock driving the machines execution.
     public var clocks: [ClockModel]
 
     /// Initialise this machine with it's stored properties.

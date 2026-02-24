@@ -60,18 +60,22 @@
 /// arrangement. It also contains a list of machines that are executing in the arrangement.
 public struct ArrangementModel: Equatable, Hashable, Codable, Sendable {
 
-    /// The clocks used in this arrangement. Clocks exist outside the scope of the arrangement.
+    /// The clocks used in this arrangement.
+    ///
+    /// Clocks exist outside the scope of the arrangement.
     public var clocks: [ClockModel]
 
-    /// The external variables used in this arrangement. External variables represent external
-    /// actuators/sensors and may affect the environment.
+    /// The external variables used in this arrangement.
+    ///
+    /// External variables represent external actuators/sensors and may affect the environment.
     public var externalVariables: String
 
     /// The machines executing within the arrangement, and the relavent variable mapping to each machine.
     public var machines: [MachineReference]
 
-    /// The variables that are local to the arrangement. These variables may be shared amongst many machines
-    /// but cannot affect the outside world.
+    /// The variables that are local to the arrangement.
+    ///
+    /// These variables may be shared amongst many machines but cannot affect the outside world.
     public var globalVariables: String
 
     /// Initialise the arrangement from it's stored properties.
