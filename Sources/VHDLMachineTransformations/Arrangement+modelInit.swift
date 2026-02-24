@@ -61,6 +61,8 @@ import VHDLParsing
 /// Add conversion initialiser between ``ArrangementModel`` and `Arrangement`.
 extension Arrangement {
 
+    // swiftlint:disable function_body_length
+
     /// Create an `Arrangement` from its javascript representation.
     /// - Parameter model: The javascript model to convert.
     /// - Parameter basePath: The path of the directory containing the arrangement folder.
@@ -118,6 +120,8 @@ extension Arrangement {
         }
         self = arrangement
     }
+
+    // swiftlint:enable function_body_length
 
 }
 

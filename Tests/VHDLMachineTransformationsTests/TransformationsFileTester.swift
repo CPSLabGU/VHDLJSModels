@@ -79,7 +79,7 @@ class TransformationsFileTester: FileTester {
             )
             _ = manager.createFile(
                 atPath: machinesDirectory.appendingPathComponent(".gitignore", isDirectory: false).path,
-                contents: "*".data(using: .utf8)
+                contents: Data("*".utf8)
             )
         }
         try? manager.createDirectory(at: pingMachineDirectory, withIntermediateDirectories: true)
@@ -100,7 +100,7 @@ class TransformationsFileTester: FileTester {
         )
         _ = manager.createFile(
             atPath: machinesDirectory.appendingPathComponent(".gitignore", isDirectory: false).path,
-            contents: "*".data(using: .utf8)
+            contents: Data("*".utf8)
         )
     }
 

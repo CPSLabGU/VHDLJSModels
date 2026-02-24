@@ -62,6 +62,8 @@ import VHDLParsing
 /// Add init from ``StateModel``.
 extension State {
 
+    // swiftlint:disable function_body_length
+
     /// Initialise a state from its Javascript model.
     /// - Parameter model: The javascript model that represents this state.
     /// - SeeAlso: ``StateModel``.
@@ -120,5 +122,7 @@ extension State {
             externalVariables: externalVariables
         )
     }
+
+    // swiftlint:enable function_body_length
 
 }

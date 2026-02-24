@@ -101,8 +101,8 @@ extension Machine {
             return signal
         }
         let externalsRaw = getStatements(model.externalVariables)
-        let externalSignals = try externalsRaw.map{
-            guard let signal = PortSignal.init(rawValue: $0) else {
+        let externalSignals = try externalsRaw.map {
+            guard let signal = PortSignal(rawValue: $0) else {
                 throw TransformationError.parseError(message: "Invalid external variable: \($0)")
             }
             return signal
