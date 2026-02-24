@@ -364,11 +364,11 @@ final class MachineTests: XCTestCase {
         model.clocks[0].name = "x"
         XCTAssertThrowsError(try Machine(model: model))
         model.clocks[0].name = "y"
-        XCTAssertNoThrow(try Machine(model: model))
+        XCTAssertThrowsError(try Machine(model: model))
         model.clocks[0].name = "s1_x"
-        XCTAssertNoThrow(try Machine(model: model))
+        XCTAssertThrowsError(try Machine(model: model))
         model.clocks[0].name = "state1"
-        XCTAssertNoThrow(try Machine(model: model))
+        XCTAssertThrowsError(try Machine(model: model))
     }
 
 }
