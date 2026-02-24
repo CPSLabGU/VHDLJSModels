@@ -72,6 +72,9 @@ extension Arrangement {
         guard keyNames.count == Set(keyNames).count else {
             throw TransformationError.modelError(message: "Duplicate machine names in arrangement.")
         }
+        guard !model.machines.isEmpty else {
+            throw TransformationError.modelError(message: "Arrangement must contain at least one machine.")
+        }
         let machineTuples: [(MachineInstance, MachineMapping)] = try model.machines
             .map { (reference: MachineReference) -> (MachineInstance, MachineMapping) in
                 let instance = try MachineInstance(reference: reference)
@@ -97,6 +100,9 @@ extension Arrangement {
                 throw TransformationError.modelError(message: "Invalid local signal \($0) in arrangement.")
             }
             return signal
+        }
+        guard !model.clocks.isEmpty else {
+            throw TransformationError.modelError(message: "Arrangement must contain at least one clock.")
         }
         let clocks = try model.clocks.map { try Clock(model: $0) }
         let clockNames = clocks.map(\.name)

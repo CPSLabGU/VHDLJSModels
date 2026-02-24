@@ -262,8 +262,8 @@ final class MachineModelTests: XCTestCase {
     // swiftlint:enable force_unwrapping
 
     /// Test conversion functions correctly.
-    func testConversionInit() {
-        let model = MachineModel(
+    func testConversionInit() throws {
+        let model = try MachineModel(
             machine: machine,
             stateLayouts: stateLayouts,
             transitionLayouts: transitionLayouts
@@ -273,9 +273,13 @@ final class MachineModelTests: XCTestCase {
 
     /// Test conversion detects incorrect number of layouts.
     func testInvalidLayouts() {
-        XCTAssertNil(MachineModel(machine: machine, stateLayouts: [], transitionLayouts: transitionLayouts))
-        XCTAssertNil(MachineModel(machine: machine, stateLayouts: stateLayouts, transitionLayouts: []))
-        XCTAssertNil(MachineModel(machine: machine, stateLayouts: [], transitionLayouts: []))
+        XCTAssertThrowsError(
+            try MachineModel(machine: machine, stateLayouts: [], transitionLayouts: transitionLayouts)
+        )
+        XCTAssertThrowsError(
+            try MachineModel(machine: machine, stateLayouts: stateLayouts, transitionLayouts: [])
+        )
+        XCTAssertThrowsError(try MachineModel(machine: machine, stateLayouts: [], transitionLayouts: []))
     }
 
 }

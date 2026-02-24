@@ -69,11 +69,11 @@ extension MachineModel {
     /// - Warning: This will return nil if the number of stateLayouts or transitionLayouts do not match the
     ///            machine.
     @inlinable
-    public init?(machine: Machine, stateLayouts: [StateLayout], transitionLayouts: [TransitionLayout]) {
+    public init(machine: Machine, stateLayouts: [StateLayout], transitionLayouts: [TransitionLayout]) throws {
         guard
             stateLayouts.count == machine.states.count, transitionLayouts.count == machine.transitions.count
         else {
-            return nil
+            throw TransformationError.modelError(message: "Invalid layouts for machine")
         }
         self.init(
             states: machine.states.enumerated().map { StateModel(state: $1, layout: stateLayouts[$0]) },

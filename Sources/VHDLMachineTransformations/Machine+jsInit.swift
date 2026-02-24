@@ -107,7 +107,17 @@ extension Machine {
             }
             return signal
         }
+        guard !model.clocks.isEmpty else {
+            throw TransformationError.modelError(
+                message: "At least one clock must be defined in each machine."
+            )
+        }
         let clocks = try model.clocks.map(Clock.init(model:))
+        guard !model.states.isEmpty else {
+            throw TransformationError.modelError(
+                message: "At least one state must be defined in each machine."
+            )
+        }
         let states = try model.states.map { try State(model: $0) }
         let transitions = try model.transitions.map { try Transition(model: $0, states: states) }
         guard
